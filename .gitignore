@@ -1,0 +1,5 @@
+pb_data/
+.env
+*.db
+*.db-shm
+*.db-wal

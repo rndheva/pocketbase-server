@@ -1,0 +1,6 @@
+.git
+.gitignore
+.env
+pb_data/
+README.md
+docker-compose.yml
