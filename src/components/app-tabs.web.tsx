@@ -10,22 +10,37 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
 
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
 
 import { ExternalLink } from './external-link';
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 export default function AppTabs() {
+  const { user } = useAuth();
   return (
     <Tabs>
       <TabSlot style={{ height: '100%' }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+            <TabButton>Bus</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
+          <TabTrigger name="map" href="/map" asChild>
+            <TabButton>Peta</TabButton>
+          </TabTrigger>
+          {user?.role === 'operator' && (
+            <TabTrigger name="analytics" href="/analytics" asChild>
+              <TabButton>Analitik</TabButton>
+            </TabTrigger>
+          )}
+          {user?.role === 'operator' && (
+            <TabTrigger name="simulator" href="/simulator" asChild>
+              <TabButton>Simulator</TabButton>
+            </TabTrigger>
+          )}
+          <TabTrigger name="account" href="/account" asChild>
+            <TabButton>Akun</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
