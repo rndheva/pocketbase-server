@@ -1,0 +1,175 @@
+﻿{
+    "routes":  [
+                   {
+                       "code":  "A",
+                       "name":  "Cicaheum â Cibeureum",
+                       "color":  "#1E88E5"
+                   },
+                   {
+                       "code":  "B",
+                       "name":  "Ledeng â Kebon Kalapa",
+                       "color":  "#E53935"
+                   },
+                   {
+                       "code":  "C",
+                       "name":  "Antapani â Dago",
+                       "color":  "#43A047"
+                   }
+               ],
+    "stops":  [
+                  {
+                      "name":  "Terminal Cicaheum",
+                      "latitude":  -6.9013,
+                      "longitude":  107.6582
+                  },
+                  {
+                      "name":  "Kiaracondong",
+                      "latitude":  -6.923,
+                      "longitude":  107.646
+                  },
+                  {
+                      "name":  "Alun-alun Bandung",
+                      "latitude":  -6.9219,
+                      "longitude":  107.6072
+                  },
+                  {
+                      "name":  "Pasar Baru",
+                      "latitude":  -6.9186,
+                      "longitude":  107.6044
+                  },
+                  {
+                      "name":  "Cibeureum",
+                      "latitude":  -6.93,
+                      "longitude":  107.577
+                  },
+                  {
+                      "name":  "Ledeng",
+                      "latitude":  -6.8603,
+                      "longitude":  107.602
+                  },
+                  {
+                      "name":  "Setiabudi",
+                      "latitude":  -6.8747,
+                      "longitude":  107.596
+                  },
+                  {
+                      "name":  "Pasteur",
+                      "latitude":  -6.893,
+                      "longitude":  107.597
+                  },
+                  {
+                      "name":  "Kebon Kalapa",
+                      "latitude":  -6.9205,
+                      "longitude":  107.606
+                  },
+                  {
+                      "name":  "Antapani",
+                      "latitude":  -6.915,
+                      "longitude":  107.66
+                  },
+                  {
+                      "name":  "Gasibu",
+                      "latitude":  -6.9004,
+                      "longitude":  107.6186
+                  },
+                  {
+                      "name":  "Dago Simpang",
+                      "latitude":  -6.8853,
+                      "longitude":  107.61279999999999
+                  },
+                  {
+                      "name":  "Dago Atas",
+                      "latitude":  -6.873,
+                      "longitude":  107.6125
+                  }
+              ],
+    "route_stops":  [
+                        {
+                            "route":  "A",
+                            "stop":  "Terminal Cicaheum",
+                            "sequence":  1
+                        },
+                        {
+                            "route":  "B",
+                            "stop":  "Ledeng",
+                            "sequence":  1
+                        },
+                        {
+                            "route":  "C",
+                            "stop":  "Antapani",
+                            "sequence":  1
+                        },
+                        {
+                            "route":  "A",
+                            "stop":  "Kiaracondong",
+                            "sequence":  2
+                        },
+                        {
+                            "route":  "B",
+                            "stop":  "Setiabudi",
+                            "sequence":  2
+                        },
+                        {
+                            "route":  "C",
+                            "stop":  "Gasibu",
+                            "sequence":  2
+                        },
+                        {
+                            "route":  "A",
+                            "stop":  "Alun-alun Bandung",
+                            "sequence":  3
+                        },
+                        {
+                            "route":  "B",
+                            "stop":  "Pasteur",
+                            "sequence":  3
+                        },
+                        {
+                            "route":  "C",
+                            "stop":  "Dago Simpang",
+                            "sequence":  3
+                        },
+                        {
+                            "route":  "A",
+                            "stop":  "Pasar Baru",
+                            "sequence":  4
+                        },
+                        {
+                            "route":  "B",
+                            "stop":  "Kebon Kalapa",
+                            "sequence":  4
+                        },
+                        {
+                            "route":  "C",
+                            "stop":  "Dago Atas",
+                            "sequence":  4
+                        },
+                        {
+                            "route":  "A",
+                            "stop":  "Cibeureum",
+                            "sequence":  5
+                        }
+                    ],
+    "buses":  [
+                  {
+                      "plate":  "D 7001 AB",
+                      "route":  "A",
+                      "capacity":  30
+                  },
+                  {
+                      "plate":  "D 7002 AB",
+                      "route":  "A",
+                      "capacity":  30
+                  },
+                  {
+                      "plate":  "D 7101 CD",
+                      "route":  "B",
+                      "capacity":  30
+                  },
+                  {
+                      "plate":  "D 7201 EF",
+                      "route":  "C",
+                      "capacity":  24
+                  }
+              ]
+}
