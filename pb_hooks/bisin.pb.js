@@ -166,3 +166,96 @@ routerAdd("POST", "/api/bisin/location", (e) => {
 
   return e.json(200, { ok: true })
 })
+
+// Perkiraan kedatangan bus di sebuah halte (publik, hanya baca)
+routerAdd("GET", "/api/bisin/arrivals", (e) => {
+  const stopId = String(e.request.url.query().get("stop_id") || "").trim()
+  if (!stopId) throw new BadRequestError("stop_id wajib diisi")
+
+  let stop
+  try {
+    stop = e.app.findRecordById("stops", stopId)
+  } catch (_) {
+    throw new NotFoundError("halte tidak ditemukan")
+  }
+  const stopLat = stop.getFloat("latitude")
+  const stopLng = stop.getFloat("longitude")
+
+  const first = (col, filter, params) => {
+    try {
+      return e.app.findFirstRecordByFilter(col, filter, params)
+    } catch (_) {
+      return null
+    }
+  }
+
+  // jarak garis lurus (km)
+  const haversine = (lat1, lng1, lat2, lng2) => {
+    const R = 6371
+    const rad = (d) => (d * Math.PI) / 180
+    const dLat = rad(lat2 - lat1)
+    const dLng = rad(lng2 - lng1)
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
+    return 2 * R * Math.asin(Math.sqrt(a))
+  }
+
+  // rute yang melewati halte ini
+  const links = e.app.findRecordsByFilter("route_stops", "stop = {:s}", "", 100, 0, { s: stopId })
+  const arrivals = []
+
+  links.forEach((link) => {
+    const routeId = link.getString("route")
+    const route = e.app.findRecordById("routes", routeId)
+    const trips = e.app.findRecordsByFilter(
+      "trips",
+      "route = {:r} && status = 'ongoing'",
+      "",
+      100,
+      0,
+      { r: routeId }
+    )
+
+    trips.forEach((trip) => {
+      const busId = trip.getString("bus")
+      const bus = e.app.findRecordById("buses", busId)
+      const loc = first("bus_locations", "bus = {:b}", { b: busId })
+      if (!loc) return // belum ada posisi, lewati
+
+      const distKm = haversine(loc.getFloat("latitude"), loc.getFloat("longitude"), stopLat, stopLng)
+      let speed = loc.getFloat("speed")
+      if (!speed || speed < 10) speed = 25
+      const etaMinutes = Math.max(0, Math.ceil((distKm / speed) * 60))
+
+      const occ = first("occupancy", "bus = {:b}", { b: busId })
+
+      arrivals.push({
+        bus_id: busId,
+        plate: bus.getString("plate"),
+        route: {
+          id: routeId,
+          code: route.getString("code"),
+          name: route.getString("name"),
+          color: route.getString("color"),
+        },
+        distance_km: Math.round(distKm * 100) / 100,
+        eta_minutes: etaMinutes,
+        occupancy: {
+          current: occ ? occ.getInt("current") : 0,
+          capacity: bus.getInt("capacity"),
+          percentage: occ ? occ.getFloat("percentage") : 0,
+          category: occ ? occ.getString("category") : "lengang",
+          updated: occ ? String(occ.get("updated")) : null,
+        },
+      })
+    })
+  })
+
+  arrivals.sort((a, b) => a.eta_minutes - b.eta_minutes)
+
+  return e.json(200, {
+    stop: { id: stopId, name: stop.getString("name") },
+    arrivals: arrivals,
+  })
+})
