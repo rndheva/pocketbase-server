@@ -44,10 +44,10 @@ PocketBase menangani data dan proses utama Bis.In, sedangkan Nginx menjadi pintu
 
 Base URL:
 
-- Publik: `https://<domain-kelompok>.stei.fun`
-- Lokal: `http://192.168.1.61:8080`
+- Publik: `https://bisin.stei.fun`
+- Lokal: `http://192.168.1.61`
 
-Ganti URL tersebut sesuai alamat server yang digunakan.
+Gunakan URL publik untuk akses dari luar jaringan, dan URL lokal hanya saat berada di jaringan yang sama dengan STB.
 
 Untuk menggunakan API, ada tiga jenis akses:
 

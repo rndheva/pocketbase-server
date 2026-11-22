@@ -7,13 +7,10 @@ info:
     Data bersifat simulasi. Endpoint tulis memerlukan header X-API-Key.
     Endpoint analitik dan riwayat event memerlukan login operator (Bearer token).
 servers:
-  - url: http://192.168.1.61:8080
-    description: STB (jaringan lokal)
-  - url: https://{domain}
+  - url: https://bisin.stei.fun
     description: Publik via Cloudflare Tunnel
-    variables:
-      domain:
-        default: isi-nama-domain-kelompok.stei.fun
+  - url: http://192.168.1.61
+    description: STB (jaringan lokal)
 components:
   securitySchemes:
     ApiKey:
