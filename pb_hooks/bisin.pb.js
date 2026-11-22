@@ -259,3 +259,46 @@ routerAdd("GET", "/api/bisin/arrivals", (e) => {
     arrivals: arrivals,
   })
 })
+
+// GET /api/bisin/analytics  (khusus operator)
+routerAdd("GET", "/api/bisin/analytics", (e) => {
+  if (e.auth.getString("role") !== "operator") {
+    throw new ForbiddenError("Hanya operator yang boleh melihat analitik")
+  }
+
+  const perHalteRows = arrayOf(new DynamicModel({
+    stop_id: "", nama: "", jenis: "", total: 0,
+  }))
+  $app.db().newQuery(
+    "SELECT e.stop AS stop_id, COALESCE(s.name, '') AS nama, e.jenis AS jenis, COUNT(*) AS total " +
+    "FROM passenger_events e LEFT JOIN stops s ON s.id = e.stop " +
+    "GROUP BY e.stop, e.jenis"
+  ).all(perHalteRows)
+
+  const perJamRows = arrayOf(new DynamicModel({
+    jam: "", jenis: "", total: 0,
+  }))
+  $app.db().newQuery(
+    "SELECT strftime('%H', e.waktu, '+7 hours') AS jam, e.jenis AS jenis, COUNT(*) AS total " +
+    "FROM passenger_events e GROUP BY jam, e.jenis"
+  ).all(perJamRows)
+
+  const halte = {}
+  perHalteRows.forEach((r) => {
+    if (!halte[r.stop_id]) halte[r.stop_id] = { stop_id: r.stop_id, nama: r.nama, naik: 0, turun: 0 }
+    if (r.jenis === "board") halte[r.stop_id].naik = r.total
+    else halte[r.stop_id].turun = r.total
+  })
+
+  const jam = {}
+  perJamRows.forEach((r) => {
+    if (!jam[r.jam]) jam[r.jam] = { jam: r.jam + ":00", naik: 0, turun: 0 }
+    if (r.jenis === "board") jam[r.jam].naik = r.total
+    else jam[r.jam].turun = r.total
+  })
+
+  return e.json(200, {
+    per_halte: Object.values(halte),
+    per_jam: Object.values(jam).sort((a, b) => (a.jam < b.jam ? -1 : 1)),
+  })
+}, $apis.requireAuth("users"))
