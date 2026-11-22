@@ -1,7 +1,10 @@
-// pb_hooks/bisin.pb.js
-
 // Naik / turun penumpang (idempoten berdasarkan event_id)
 routerAdd("POST", "/api/bisin/events", (e) => {
+  const key = $os.getenv("BISIN_API_KEY")
+  if (!key || e.request.header.get("X-API-Key") !== key) {
+    throw new UnauthorizedError("API key salah atau tidak ada")
+  }
+
   const body = e.requestInfo().body
 
   const eventId = String(body.event_id || "").trim()
@@ -47,7 +50,7 @@ routerAdd("POST", "/api/bisin/events", (e) => {
       return
     }
 
-    // 2. Validasi bus dan trip
+    // 2. Validasi bus, trip, dan halte
     let bus, trip
     try {
       bus = txApp.findRecordById("buses", busId)
@@ -121,6 +124,11 @@ routerAdd("POST", "/api/bisin/events", (e) => {
 
 // Posisi GPS terakhir bus (satu record per bus, di-update terus)
 routerAdd("POST", "/api/bisin/location", (e) => {
+  const key = $os.getenv("BISIN_API_KEY")
+  if (!key || e.request.header.get("X-API-Key") !== key) {
+    throw new UnauthorizedError("API key salah atau tidak ada")
+  }
+
   const body = e.requestInfo().body
 
   const busId = String(body.bus_id || "").trim()

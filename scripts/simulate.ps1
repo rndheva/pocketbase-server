@@ -1,5 +1,6 @@
 param(
   [string]$Base = "http://127.0.0.1:8090",
+  [string]$ApiKey = $env:BISIN_API_KEY,
   [int]$TickMs = 1000,
   [int]$StepsPerLeg = 10
 )
@@ -13,7 +14,8 @@ function Err-Text($e) {
 }
 
 function Send-Json($path, $obj) {
-  Invoke-RestMethod -Method Post -Uri "$Base$path" -ContentType "application/json" -Body ($obj | ConvertTo-Json)
+  Invoke-RestMethod -Method Post -Uri "$Base$path" -ContentType "application/json" `
+    -Headers @{ "X-API-Key" = $ApiKey } -Body ($obj | ConvertTo-Json)
 }
 
 function Send-Event($s, $stop, $jenis) {
