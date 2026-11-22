@@ -3,3 +3,4 @@ pb_data/
 *.db
 *.db-shm
 *.db-wal
+pocketbase.exe
