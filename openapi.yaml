@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: Bis.In API
+  version: 1.0.0
+  description: >
+    Layanan pelacakan bus, okupansi, dan analitik penumpang Bis.In (Bandung).
+    Data bersifat simulasi. Endpoint tulis memerlukan header X-API-Key.
+    Endpoint analitik dan riwayat event memerlukan login operator (Bearer token).
+servers:
+  - url: http://192.168.1.61:8080
+    description: STB (jaringan lokal)
+  - url: https://{domain}
+    description: Publik via Cloudflare Tunnel
+    variables:
+      domain:
+        default: isi-nama-domain-kelompok.stei.fun
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    OperatorToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token dari /api/collections/users/auth-with-password
+paths:
+  /api/health:
+    get:
+      summary: Cek layanan hidup
+      responses:
+        "200": { description: OK }
+  /api/bisin/events:
+    post:
+      summary: Catat penumpang naik/turun (idempoten per event_id)
+      security: [{ ApiKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event_id, bus_id, trip_id, stop_id, jenis]
+              properties:
+                event_id: { type: string, description: ID unik event; kirim ulang aman }
+                bus_id: { type: string }
+                trip_id: { type: string }
+                stop_id: { type: string }
+                jenis: { type: string, enum: [board, alight] }
+      responses:
+        "200":
+          description: Berhasil; okupansi terbaru
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  duplicate: { type: boolean }
+                  bus_id: { type: string }
+                  current: { type: integer }
+                  percentage: { type: number }
+                  category: { type: string, enum: [lengang, sedang, ramai, penuh] }
+        "400": { description: Validasi gagal (data tidak valid, atau turun saat bus kosong) }
+        "401": { description: API key salah atau tidak ada }
+  /api/bisin/location:
+    post:
+      summary: Perbarui posisi bus
+      security: [{ ApiKey: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bus_id, latitude, longitude]
+              properties:
+                bus_id: { type: string }
+                latitude: { type: number }
+                longitude: { type: number }
+                speed: { type: number, description: km/jam (opsional) }
+      responses:
+        "200": { description: Posisi tersimpan }
+        "400": { description: Validasi gagal }
+        "401": { description: API key salah atau tidak ada }
+  /api/bisin/arrivals:
+    get:
+      summary: Bus yang akan tiba di sebuah halte (ETA)
+      description: ETA berupa estimasi jarak garis lurus, bukan rute jalan.
+      parameters:
+        - { name: stop_id, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Daftar bus terurut ETA, beserta okupansi }
+        "400": { description: stop_id tidak ada }
+  /api/bisin/analytics:
+    get:
+      summary: Jumlah naik/turun per halte dan per jam (WIB)
+      security: [{ OperatorToken: [] }]
+      responses:
+        "200": { description: per_halte dan per_jam }
+        "401": { description: Belum login }
+        "403": { description: Bukan operator }
+  /api/collections/users/auth-with-password:
+    post:
+      summary: Login operator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [identity, password]
+              properties:
+                identity: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: Berisi token }
+        "400": { description: Login gagal }
+  /api/collections/{collection}/records:
+    get:
+      summary: Baca data referensi dan status (publik)
+      description: >
+        collection: routes, stops, route_stops, buses, trips, bus_locations, occupancy.
+        passenger_events hanya untuk operator.
+      parameters:
+        - { name: collection, in: path, required: true, schema: { type: string } }
+        - { name: expand, in: query, schema: { type: string } }
+        - { name: perPage, in: query, schema: { type: integer } }
+      responses:
+        "200": { description: Daftar record }
